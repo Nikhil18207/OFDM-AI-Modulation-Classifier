@@ -104,43 +104,33 @@ Model
 
 Best Validation Accuracy
 
-SpectrogramCNN
+SpectrogramCNN -> 84.38%
 
-84.38%
+SpectrogramCNN (BN + Dropout) -> 84.38%
 
-SpectrogramCNN (BN + Dropout)
+LSTMClassifier (I/Q) -> 71.56%
 
-84.38%
+ImprovedLSTM (I/Q + Mag/Phase) -> 75.35%
 
-LSTMClassifier (I/Q)
-
-71.56%
-
-ImprovedLSTM (I/Q + Mag/Phase)
-
-75.35%
-
-Hybrid CNN + LSTM
-
-84.29%
+Hybrid CNN + LSTM -> 84.29%
 
 # ✅ Key Insights
 
-Spectrogram-based models outperform raw I/Q models in classification accuracy.
+-> Spectrogram-based models outperform raw I/Q models in classification accuracy.
 
-Adding engineered features like magnitude and phase boosts LSTM performance.
+-> Adding engineered features like magnitude and phase boosts LSTM performance.
 
-CNN-LSTM hybrid architecture provides the best of both spatial and temporal modeling.
+-> CNN-LSTM hybrid architecture provides the best of both spatial and temporal modeling.
 
 # 🔮 Future Scope
 
-Test with more modulation types (e.g., 16QAM, 64QAM)
+-> Test with more modulation types (e.g., 16QAM, 64QAM)
 
-Extend to multi-antenna (MIMO) systems
+-> Extend to multi-antenna (MIMO) systems
 
-Apply domain adaptation for unseen environments
+-> Apply domain adaptation for unseen environments
 
-Deploy on edge devices with ONNX/TorchScript
+-> Deploy on edge devices with ONNX/TorchScript/Streamlit
 
 # 🧾 Citation
 
