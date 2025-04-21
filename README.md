@@ -1,60 +1,152 @@
-# OFDM-AI-Modulation-Classifier
-AI-powered hybrid system using CNN, LSTM, and GANs to classify OFDM modulation schemes under low-SNR conditions. Enhances signal detection for SDRs, cognitive radios, and satellite communication. Trained on IEEE OFDM dataset.
+
 
 Dataset Link - https://ieeexplore.ieee.org/document/9467343/algorithms?tabFilter=dataset#algorithms
 
-# 🧩 PROGRESS SO FAR
 
-# 📁 Step 1: Dataset Setup
-Loaded the OFDM Modulation Classification Dataset from IEEE DataPort.
+# 📡 OFDM Modulation Classification with Deep Learning
 
-Parsed .h5 files across multiple SNR levels and modulation pairs.
+📌 Overview
 
-Each .h5 file contains complex I/Q signal data with shape: (4194304, 1).
+This project presents a comprehensive pipeline for classifying Orthogonal Frequency Division Multiplexing (OFDM) modulation schemes using various deep learning architectures. We explore and compare multiple approaches ranging from spectrogram-based CNNs to hybrid CNN-LSTM models, using raw I/Q signals as well as engineered features like magnitude and phase.
 
-# 🧪 Step 2: Signal Preprocessing & Visualization
-Created a PyTorch dataset that slices signals into [2, 1024] segments (I & Q).
+⚙️ Environment Setup
 
-Visualized:
+Framework: PyTorch
 
-✅ Raw I/Q waveforms
+GPU Acceleration: CUDA-enabled (e.g., NVIDIA RTX 3060)
 
-✅ Spectrograms using STFT (Short-Time Fourier Transform)
+All models are trained on .h5 files containing raw OFDM signals
 
-# 🧠 Step 3A: CNN for Spectrogram Classification
-Designed and trained a custom CNN on spectrograms.
+🧷 Dataset Structure & Label Mapping
 
-Achieved:
+Dataset is structured by modulation class folders:
 
-Train Accuracy: ~86.13%
+BPSK_BPSK, BPSK_QPSK, BPSK_8PSK, QPSK_QPSK, QPSK_BPSK, QPSK_8PSK
 
-Validation Accuracy: ~84.77%
+Each class is assigned an integer label from 0 to 5
 
-Saved model as spectrogram_cnn.pth.
+📂 Data Preprocessing
 
-Built a loadable version of the model (compatible with inference).
+Raw I/Q Loader
 
-Set up code to:
+Parses complex signal from .h5 files
 
-Load .h5 files
+Splits signal into 1024-sample segments
 
-Segment & preprocess signals
+Extracts In-phase (I) and Quadrature (Q) channels: [2, 1024]
 
-Feed into the model and predict the modulation class
+Spectrogram Loader
 
-🔜 UP NEXT
-# ✅ Step 3B: LSTM on Raw I/Q Time Series
-Model to capture sequential patterns in I/Q.
+Converts I/Q signal into complex form and applies Short-Time Fourier Transform (STFT)
 
-Compare with CNN performance.
+Extracts magnitude spectrogram [Freq x Time]
 
-# ✅ Step 3C: Hybrid CNN + LSTM
-CNN for feature extraction → LSTM for temporal learning.
+Normalizes values for stability
 
-Build the most powerful hybrid classifier.
+I/Q + Mag/Phase Loader
 
-# 🎯 Final Touch:
-Create a tool to upload a signal and get the predicted modulation class.
+Adds engineered features:
 
-Optional: Streamlit or CLI-based interface for easy demo.
+I, Q, Magnitude, and Phase → [1024, 4]
 
+📊 I/Q Signal Visualization
+
+Visual plots of individual I and Q components were used to validate signal integrity and variation across classes.
+
+🌈 Spectrogram Analysis
+
+Time-frequency spectrograms were generated using STFT to highlight frequency evolution in modulated signals. These were input to CNN-based models.
+
+🧠 Model Architectures
+
+1. SpectrogramCNN
+
+Input: [1, F, T] spectrograms
+
+3 Convolutional layers with ReLU + MaxPooling + Dropout
+
+Flatten + Fully Connected layers
+
+Final Accuracy: 84.38%
+
+2. SpectrogramCNN (BN + Dropout Improved)
+
+Added BatchNorm and Dropout after each conv layer
+
+Final Accuracy: 84.38% (stable from Epoch 5 onward)
+
+3. LSTMClassifier (Raw I/Q Sequences)
+
+Input: [1024, 2] sequence (I and Q)
+
+2-layer bidirectional LSTM
+
+Final Accuracy: 71.56%
+
+4. ImprovedLSTM (I/Q + Mag/Phase)
+
+Input: [1024, 4] → I, Q, Magnitude, Phase
+
+3-layer bidirectional LSTM + Dropout + Scheduler
+
+Final Accuracy: 75.35%
+
+5. Hybrid CNN + LSTM (Spectrogram → LSTM)
+
+CNN to extract spatial features from spectrograms
+
+Reshaped into sequences for LSTM
+
+Bidirectional LSTM with 2 layers
+
+Final Accuracy: 84.29% (Best performing hybrid model)
+
+🏁 Performance Comparison
+
+Model
+
+Best Validation Accuracy
+
+SpectrogramCNN
+
+84.38%
+
+SpectrogramCNN (BN + Dropout)
+
+84.38%
+
+LSTMClassifier (I/Q)
+
+71.56%
+
+ImprovedLSTM (I/Q + Mag/Phase)
+
+75.35%
+
+Hybrid CNN + LSTM
+
+84.29%
+
+✅ Key Insights
+
+Spectrogram-based models outperform raw I/Q models in classification accuracy.
+
+Adding engineered features like magnitude and phase boosts LSTM performance.
+
+CNN-LSTM hybrid architecture provides the best of both spatial and temporal modeling.
+
+🔮 Future Scope
+
+Test with more modulation types (e.g., 16QAM, 64QAM)
+
+Extend to multi-antenna (MIMO) systems
+
+Apply domain adaptation for unseen environments
+
+Deploy on edge devices with ONNX/TorchScript
+
+🧾 Citation
+
+If you use this work, please consider citing or referencing it in your own research. For collaborations or inquiries, feel free to reach out!
+
+Author: Nikhil KumarProject: Deep Learning for OFDM Modulation ClassificationFramework: PyTorch, CUDA
