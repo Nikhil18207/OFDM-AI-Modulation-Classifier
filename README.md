@@ -1,15 +1,12 @@
-
-
-Dataset Link - https://ieeexplore.ieee.org/document/9467343/algorithms?tabFilter=dataset#algorithms
-
-
 # 📡 OFDM Modulation Classification with Deep Learning
 
 📌 Overview
 
 This project presents a comprehensive pipeline for classifying Orthogonal Frequency Division Multiplexing (OFDM) modulation schemes using various deep learning architectures. We explore and compare multiple approaches ranging from spectrogram-based CNNs to hybrid CNN-LSTM models, using raw I/Q signals as well as engineered features like magnitude and phase.
 
-⚙️ Environment Setup
+Dataset Link -  https://ieeexplore.ieee.org/document/9467343/algorithms?tabFilter=dataset#algorithms
+
+# ⚙️ Environment Setup
 
 Framework: PyTorch
 
@@ -17,7 +14,7 @@ GPU Acceleration: CUDA-enabled (e.g., NVIDIA RTX 3060)
 
 All models are trained on .h5 files containing raw OFDM signals
 
-🧷 Dataset Structure & Label Mapping
+# 🧷 Dataset Structure & Label Mapping
 
 Dataset is structured by modulation class folders:
 
@@ -25,7 +22,7 @@ BPSK_BPSK, BPSK_QPSK, BPSK_8PSK, QPSK_QPSK, QPSK_BPSK, QPSK_8PSK
 
 Each class is assigned an integer label from 0 to 5
 
-📂 Data Preprocessing
+# 📂 Data Preprocessing
 
 Raw I/Q Loader
 
@@ -49,15 +46,15 @@ Adds engineered features:
 
 I, Q, Magnitude, and Phase → [1024, 4]
 
-📊 I/Q Signal Visualization
+# 📊 I/Q Signal Visualization
 
 Visual plots of individual I and Q components were used to validate signal integrity and variation across classes.
 
-🌈 Spectrogram Analysis
+# 🌈 Spectrogram Analysis
 
 Time-frequency spectrograms were generated using STFT to highlight frequency evolution in modulated signals. These were input to CNN-based models.
 
-🧠 Model Architectures
+# 🧠 Model Architectures
 
 1. SpectrogramCNN
 
