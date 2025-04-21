@@ -24,27 +24,27 @@ Each class is assigned an integer label from 0 to 5
 
 # 📂 Data Preprocessing
 
-Raw I/Q Loader
+  -> Raw I/Q Loader
 
-Parses complex signal from .h5 files
+  -> Parses complex signal from .h5 files
 
-Splits signal into 1024-sample segments
+  -> Splits signal into 1024-sample segments
 
-Extracts In-phase (I) and Quadrature (Q) channels: [2, 1024]
+  -> Extracts In-phase (I) and Quadrature (Q) channels: [2, 1024]
 
-Spectrogram Loader
+  -> Spectrogram Loader
 
-Converts I/Q signal into complex form and applies Short-Time Fourier Transform (STFT)
+  -> Converts I/Q signal into complex form and applies Short-Time Fourier Transform (STFT)
 
-Extracts magnitude spectrogram [Freq x Time]
+  -> Extracts magnitude spectrogram [Freq x Time]
 
-Normalizes values for stability
+  -> Normalizes values for stability
 
-I/Q + Mag/Phase Loader
+  -> I/Q + Mag/Phase Loader
 
-Adds engineered features:
+# Adds engineered features:
 
-I, Q, Magnitude, and Phase → [1024, 4]
+  -> I, Q, Magnitude, and Phase → [1024, 4]
 
 # 📊 I/Q Signal Visualization
 
@@ -56,49 +56,49 @@ Time-frequency spectrograms were generated using STFT to highlight frequency evo
 
 # 🧠 Model Architectures
 
-1. SpectrogramCNN
+# 1. SpectrogramCNN
 
-Input: [1, F, T] spectrograms
+ -> Input: [1, F, T] spectrograms
 
-3 Convolutional layers with ReLU + MaxPooling + Dropout
+ -> 3 Convolutional layers with ReLU + MaxPooling + Dropout
 
-Flatten + Fully Connected layers
+ -> Flatten + Fully Connected layers
 
-Final Accuracy: 84.38%
+ -> Final Accuracy: 84.38%
 
-2. SpectrogramCNN (BN + Dropout Improved)
+# 2. SpectrogramCNN (BN + Dropout Improved)
 
-Added BatchNorm and Dropout after each conv layer
+ -> Added BatchNorm and Dropout after each conv layer
 
-Final Accuracy: 84.38% (stable from Epoch 5 onward)
+ -> Final Accuracy: 84.38% (stable from Epoch 5 onward)
 
-3. LSTMClassifier (Raw I/Q Sequences)
+# 3. LSTMClassifier (Raw I/Q Sequences)
 
-Input: [1024, 2] sequence (I and Q)
+ -> Input: [1024, 2] sequence (I and Q)
 
-2-layer bidirectional LSTM
+ -> 2-layer bidirectional LSTM
 
-Final Accuracy: 71.56%
+ -> Final Accuracy: 71.56%
 
-4. ImprovedLSTM (I/Q + Mag/Phase)
+# 4. ImprovedLSTM (I/Q + Mag/Phase)
 
-Input: [1024, 4] → I, Q, Magnitude, Phase
+ -> Input: [1024, 4] → I, Q, Magnitude, Phase
 
-3-layer bidirectional LSTM + Dropout + Scheduler
+ -> 3-layer bidirectional LSTM + Dropout + Scheduler
 
-Final Accuracy: 75.35%
+ -> Final Accuracy: 75.35%
 
-5. Hybrid CNN + LSTM (Spectrogram → LSTM)
+# 5. Hybrid CNN + LSTM (Spectrogram → LSTM)
 
-CNN to extract spatial features from spectrograms
+ -> CNN to extract spatial features from spectrograms
 
-Reshaped into sequences for LSTM
+ -> Reshaped into sequences for LSTM
 
-Bidirectional LSTM with 2 layers
+ -> Bidirectional LSTM with 2 layers
 
-Final Accuracy: 84.29% (Best performing hybrid model)
+ -> Final Accuracy: 84.29% (Best performing hybrid model)
 
-🏁 Performance Comparison
+# 🏁 Performance Comparison
 
 Model
 
@@ -124,7 +124,7 @@ Hybrid CNN + LSTM
 
 84.29%
 
-✅ Key Insights
+# ✅ Key Insights
 
 Spectrogram-based models outperform raw I/Q models in classification accuracy.
 
@@ -132,7 +132,7 @@ Adding engineered features like magnitude and phase boosts LSTM performance.
 
 CNN-LSTM hybrid architecture provides the best of both spatial and temporal modeling.
 
-🔮 Future Scope
+# 🔮 Future Scope
 
 Test with more modulation types (e.g., 16QAM, 64QAM)
 
@@ -142,7 +142,7 @@ Apply domain adaptation for unseen environments
 
 Deploy on edge devices with ONNX/TorchScript
 
-🧾 Citation
+# 🧾 Citation
 
 If you use this work, please consider citing or referencing it in your own research. For collaborations or inquiries, feel free to reach out!
 
