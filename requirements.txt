@@ -1,0 +1,6 @@
+streamlit==1.44.1
+torch==2.2.2
+numpy
+scipy
+h5py
+matplotlib

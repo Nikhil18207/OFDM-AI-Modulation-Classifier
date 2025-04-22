@@ -1,0 +1,9 @@
+# .gitignore
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+*.pkl
+*.h5
+*.7z
+.DS_Store
+signalpytorch/
