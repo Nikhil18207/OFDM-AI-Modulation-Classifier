@@ -1,0 +1,193 @@
+🚀 OFDM Modulation Classification using Deep Learning with Noise-Aware Evaluation & Spectrogram Visual Insights
+
+#🎯 Objective
+The goal is to develop an AI system capable of:
+
+Automatically classifying modulation schemes (e.g., BPSK_BPSK, QPSK_8PSK) from raw wireless OFDM signals.
+Operating effectively across a wide range of Signal-to-Noise Ratios (SNRs), from -20 dB to +20 dB.
+Providing visual and confidence-based insights for each signal segment, ensuring both accuracy and explainability.
+
+#📦 Dataset Structure
+
+The dataset is organized as follows:
+
+Folders: Each represents a modulation pair, e.g.:
+BPSK_8PSK/
+QPSK_BPSK/
+...
+
+
+Files: .h5 files labeled with SNR values, e.g.:
+BPSK_8PSK/-10dB.h5
+BPSK_8PSK/0dB.h5
+BPSK_8PSK/6dB.h5
+
+
+File Content:
+A single complex signal (I/Q data).
+Shape: [4194304, 1], dtype: complex64.
+
+
+#🧪 Step 1: Preprocessing
+Signal Segmentation
+
+The long I/Q signal is divided into 4096 chunks, each containing 1024 points.
+
+Spectrogram Transformation
+
+Each chunk is converted into a spectrogram using Short-Time Fourier Transform (STFT).
+Resulting shape: 128xN (frequency x time) image, suitable for CNN input.
+
+Label Mapping
+
+Labels are extracted from file/folder names, e.g., 'BPSK_8PSK' → 2.
+
+#🧠 Step 2: Model - Hybrid CNN + LSTM
+The model architecture combines:
+
+CNN Layers:
+Extract spatial patterns from spectrogram (frequency-time features).
+
+
+LSTM Layers:
+Capture temporal sequence patterns across time bins.
+
+
+Fully Connected Layer:
+Outputs one of the 6 modulation classes.
+This hybrid structure excels at sequence-aware classification for modulation recognition.
+
+#🏋️ Step 3: Training
+
+Dataset Split: 80% training, 20% validation.
+Loss Function: CrossEntropyLoss.
+Optimizer: Adam.
+Epochs: 30.
+Metrics: Accuracy, segment-wise prediction.
+Performance:
+Accuracy improved from ~63% to ~85% over 30 epochs.
+Demonstrated generalization even in noisy conditions.
+
+
+
+#🧠 Step 4: Real-Time Classification & Deployment
+Functionality
+Users can upload a .h5 signal file (e.g., 6dB.h5), and the system:
+
+Segments the signal.
+Classifies each chunk.
+Outputs the majority-voted predicted modulation.
+
+Outputs
+
+Per-Segment Prediction Breakdown:
+Shows classification results for each chunk.
+
+
+Confidence Scores:
+Provides probability scores per class.
+
+
+Visualizations:
+Spectrogram of each segment.
+I/Q waveform for raw signal analysis.
+
+
+
+#📊 Explainability Features
+
+Per-Segment Prediction Histogram & Pie Chart:
+Highlights which segments were misclassified and their confidence levels.
+
+
+Softmax Probabilities:
+Displays model confidence for each prediction.
+
+
+Spectrogram View:
+Visualizes the time-frequency representation of each segment.
+
+
+I/Q Waveform View:
+Shows raw signal components for low-level analysis.
+
+
+
+#📡 SNR Robustness
+The system was tested across various SNR conditions:
+
+QPSK_8PSK @ 6dB: Achieved ~99% accuracy.
+BPSK_8PSK @ -10dB: Maintained reasonable accuracy despite high noise.
+
+SNR Classification
+
+SNR (dB)
+Noise Category
+Comments
+
+-20 to -5
+High Noise
+Challenging classification
+
+-4 to +4
+Mid Noise
+Moderate clarity
+
++5 to +20
+Low Noise
+High classification confidence
+
+# ✅ Results Summary
+
+Aspect
+Outcome
+
+
+
+Total Segments
+4096 per file
+
+
+Accuracy (30 Epochs)
+~85% overall
+
+
+Best Prediction Class
+Top-1 Softmax > 99% for clean signals
+
+
+Noise Adaptability
+Strong performance at -10 dB and up
+
+
+Explainability
+High – using visuals, confidence scores
+
+
+#💡 Real-World Use Cases
+
+Military & Defense:
+Identify enemy communication protocols under jamming conditions.
+
+
+Cognitive Radios:
+Auto-detect modulation types for dynamic spectrum access.
+
+
+Satellite/Remote Sensing:
+Decode weak, noisy transmissions from deep space.
+
+
+Software-Defined Radios (SDR):
+Enable real-time modulation classification onboard.
+
+
+
+#🧠 Why This is Unique
+This system stands out because it:
+
+Handles a wide SNR range, including challenging -10 dB conditions.
+Provides segment-wise explainability for transparent results.
+Is deployed as an interactive UI using Streamlit.
+Supports practical debugging, confidence-based insights, and waveform inspection.
+

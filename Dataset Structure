@@ -1,0 +1,23 @@
+Each folder represents a modulation pair (e.g., BPSK_8PSK), containing .h5 files for different SNR levels.
+
+├── BPSK_8PSK/
+│   ├── -10dB.h5
+│   ├── -8dB.h5
+│   ├── ...
+│   └── 20dB.h5
+│
+├── BPSK_BPSK/
+│   ├── -10dB.h5
+│   └── ...
+│
+├── BPSK_QPSK/
+│   ├── -10dB.h5
+│   └── ...
+│
+├── QPSK_BPSK/
+│   ├── -10dB.h5
+│   └── ...
+│
+├── QPSK_8PSK/
+├── QPSK_QPSK/
+
