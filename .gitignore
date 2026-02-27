@@ -13,6 +13,7 @@ __pycache__/
 *.h5
 *.7z
 OFDM Modulation Classification Dataset/
+RadioML2016.10a/
 
 # OS
 .DS_Store
