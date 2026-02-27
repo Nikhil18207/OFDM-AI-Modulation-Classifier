@@ -1,141 +1,77 @@
-# 📡 OFDM Modulation Classification with Deep Learning
+# Deep Learning Based OFDM Modulation Classification
 
-📌 Overview
+Attention-Enhanced Hybrid CNN-LSTM with Noise-Aware Curriculum Training
 
-This project presents a comprehensive pipeline for classifying Orthogonal Frequency Division Multiplexing (OFDM) modulation schemes using various deep learning architectures. We explore and compare multiple approaches ranging from spectrogram-based CNNs to hybrid CNN-LSTM models, using raw I/Q signals as well as engineered features like magnitude and phase.
+## Overview
 
-Dataset Link -  https://ieeexplore.ieee.org/document/9467343/algorithms?tabFilter=dataset#algorithms
+This project classifies OFDM modulation schemes (BPSK, QPSK, 8PSK combinations) from raw I/Q signals using deep learning. It compares 5 architectures and introduces two key innovations:
 
-# ⚙️ Environment Setup
+1. **SE Channel Attention** — Squeeze-and-Excitation blocks for adaptive feature re-weighting
+2. **Curriculum Learning** — Progressive SNR training from hard (low-SNR) to easy (high-SNR)
 
-Framework: PyTorch
+## Models Compared
 
-GPU Acceleration: CUDA-enabled (e.g., NVIDIA RTX 3060)
+| Model | Input | Description |
+|-------|-------|-------------|
+| SpectrogramCNN | STFT spectrogram | 3-layer CNN with BN + Dropout |
+| Improved LSTM | I/Q + Mag + Phase | 3-layer bidirectional LSTM |
+| Hybrid CNN-LSTM | STFT spectrogram | CNN + LSTM (ablation baseline) |
+| Attention Hybrid | STFT spectrogram | CNN + SE Attention + LSTM |
+| Curriculum Hybrid | STFT spectrogram | Attention Hybrid + curriculum training |
 
-All models are trained on .h5 files containing raw OFDM signals
+## Key Features
 
-# 🧷 Dataset Structure & Label Mapping
+- **File-level train/test split** — no data leakage from segment-level splitting
+- **SNR-wise evaluation** — accuracy curves from -10 dB to +20 dB
+- **Confusion matrices** at low, mid, and high SNR
+- **Grad-CAM visualization** — interpretability of model decisions
+- **Classification reports** — precision, recall, F1 per class
+- **Complexity analysis** — parameter counts, training time, inference latency
 
-Dataset is structured by modulation class folders:
+## Dataset
 
-BPSK_BPSK, BPSK_QPSK, BPSK_8PSK, QPSK_QPSK, QPSK_BPSK, QPSK_8PSK
+IEEE OFDM Modulation Classification Dataset ([source](https://ieeexplore.ieee.org/document/9467343/algorithms?tabFilter=dataset#algorithms))
 
-Each class is assigned an integer label from 0 to 5
+```
+OFDM Modulation Classification Dataset/
+├── BPSK_BPSK/   (16 .h5 files: -10dB to +20dB)
+├── BPSK_QPSK/
+├── BPSK_8PSK/
+├── QPSK_QPSK/
+├── QPSK_BPSK/
+└── QPSK_8PSK/
+```
 
-# 📂 Data Preprocessing
+6 classes, 96 files, ~4M complex samples per file, segmented into 1024-sample chunks.
 
-  -> Raw I/Q Loader
+## Setup
 
-  -> Parses complex signal from .h5 files
+```bash
+pip install -r requirements.txt
+```
 
-  -> Splits signal into 1024-sample segments
+Requires CUDA-enabled GPU (tested on RTX 3060, RTX 4060).
 
-  -> Extracts In-phase (I) and Quadrature (Q) channels: [2, 1024]
+## Usage
 
-  -> Spectrogram Loader
+**Training (notebook):**
+Open `EchonNet.ipynb` and run all cells end-to-end.
 
-  -> Converts I/Q signal into complex form and applies Short-Time Fourier Transform (STFT)
+**Demo (Streamlit app):**
+```bash
+streamlit run app.py
+```
 
-  -> Extracts magnitude spectrogram [Freq x Time]
+## Project Structure
 
-  -> Normalizes values for stability
+```
+├── EchonNet.ipynb      # Main notebook (50 cells, end-to-end pipeline)
+├── model.py            # Model definitions (SEBlock, AttentionHybridCNNLSTM, HybridCNNLSTM)
+├── app.py              # Streamlit web demo
+├── requirements.txt    # Python dependencies
+└── .gitignore
+```
 
-  -> I/Q + Mag/Phase Loader
+## Author
 
-# Adds engineered features:
-
-  -> I, Q, Magnitude, and Phase → [1024, 4]
-
-# 📊 I/Q Signal Visualization
-
-Visual plots of individual I and Q components were used to validate signal integrity and variation across classes.
-
-# 🌈 Spectrogram Analysis
-
-Time-frequency spectrograms were generated using STFT to highlight frequency evolution in modulated signals. These were input to CNN-based models.
-
-# 🧠 Model Architectures
-
-# 1. SpectrogramCNN
-
- -> Input: [1, F, T] spectrograms
-
- -> 3 Convolutional layers with ReLU + MaxPooling + Dropout
-
- -> Flatten + Fully Connected layers
-
- -> Final Accuracy: 84.38%
-
-# 2. SpectrogramCNN (BN + Dropout Improved)
-
- -> Added BatchNorm and Dropout after each conv layer
-
- -> Final Accuracy: 84.38% (stable from Epoch 5 onward)
-
-# 3. LSTMClassifier (Raw I/Q Sequences)
-
- -> Input: [1024, 2] sequence (I and Q)
-
- -> 2-layer bidirectional LSTM
-
- -> Final Accuracy: 71.56%
-
-# 4. ImprovedLSTM (I/Q + Mag/Phase)
-
- -> Input: [1024, 4] → I, Q, Magnitude, Phase
-
- -> 3-layer bidirectional LSTM + Dropout + Scheduler
-
- -> Final Accuracy: 75.35%
-
-# 5. Hybrid CNN + LSTM (Spectrogram → LSTM)
-
- -> CNN to extract spatial features from spectrograms
-
- -> Reshaped into sequences for LSTM
-
- -> Bidirectional LSTM with 2 layers
-
- -> Final Accuracy: 84.29% (Best performing hybrid model)
-
-# 🏁 Performance Comparison
-
-Model
-
-Best Validation Accuracy
-
-SpectrogramCNN -> 84.38%
-
-SpectrogramCNN (BN + Dropout) -> 84.38%
-
-LSTMClassifier (I/Q) -> 71.56%
-
-ImprovedLSTM (I/Q + Mag/Phase) -> 75.35%
-
-Hybrid CNN + LSTM -> 84.29%
-
-# ✅ Key Insights
-
--> Spectrogram-based models outperform raw I/Q models in classification accuracy.
-
--> Adding engineered features like magnitude and phase boosts LSTM performance.
-
--> CNN-LSTM hybrid architecture provides the best of both spatial and temporal modeling.
-
-# 🔮 Future Scope
-
--> Test with more modulation types (e.g., 16QAM, 64QAM)
-
--> Extend to multi-antenna (MIMO) systems
-
--> Apply domain adaptation for unseen environments
-
--> Deploy on edge devices with ONNX/TorchScript/Streamlit
-
-# 🧾 Citation
-
-If you use this work, please consider citing or referencing it in your own research. For collaborations or inquiries, feel free to reach out!
-
-Author: Nikhil KumarProject: Deep Learning for OFDM Modulation ClassificationFramework: PyTorch, CUDA
-
-# DEMO SITE LINK - https://echonet.streamlit.app/  
+Nikhil Kumar
