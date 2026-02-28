@@ -4,5 +4,6 @@ scipy
 h5py
 matplotlib
 scikit-learn
+pandas
 tqdm
 streamlit>=1.44.0

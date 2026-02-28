@@ -9,6 +9,11 @@ from scipy.signal import stft
 from collections import Counter
 from model import AttentionHybridCNNLSTM
 
+# === Configuration ===
+SEGMENT_LENGTH = 1024
+NPERSEG = 128
+NOVERLAP = NPERSEG // 2  # 64 samples, 50% overlap (matches EchonNet pipeline)
+
 # Label mappings
 MOD_LABELS = {
     'BPSK_BPSK': 0, 'BPSK_QPSK': 1, 'BPSK_8PSK': 2,
@@ -16,16 +21,43 @@ MOD_LABELS = {
 }
 inv_label_map = {v: k for k, v in MOD_LABELS.items()}
 
+# Weight file discovery: check multiple likely locations
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+WEIGHT_CANDIDATES = [
+    os.path.join(SCRIPT_DIR, "attention_hybrid_best.pth"),
+    os.path.join(os.getcwd(), "attention_hybrid_best.pth"),
+    "attention_hybrid_best.pth",
+]
+
 # Load model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = AttentionHybridCNNLSTM(num_classes=6).to(device)
-model.load_state_dict(torch.load("attention_hybrid_best.pth", map_location=device))
-model.eval()
+
+weight_path = None
+for candidate in WEIGHT_CANDIDATES:
+    if os.path.isfile(candidate):
+        weight_path = candidate
+        break
+
+if weight_path is not None:
+    model.load_state_dict(torch.load(weight_path, map_location=device))
+    model.eval()
+    model_loaded = True
+else:
+    model_loaded = False
 
 # Streamlit UI
 st.set_page_config(page_title="OFDM Modulation Classifier", layout="wide")
 st.title("OFDM Modulation Classification - AI Demo")
 st.caption("Attention-Enhanced Hybrid CNN-LSTM with Noise-Aware Evaluation")
+
+if not model_loaded:
+    st.error(
+        "Model weights not found. Please run `EchonNet.ipynb` first to generate "
+        "`attention_hybrid_best.pth`, then place it alongside this file."
+    )
+    st.info(f"Searched locations: {WEIGHT_CANDIDATES}")
+    st.stop()
 
 uploaded_file = st.file_uploader("Upload a low-SNR .h5 signal file", type="h5")
 
@@ -38,15 +70,13 @@ if uploaded_file:
         key = list(f.keys())[0]
         signal = np.array(f[key]).squeeze()
 
-    segment_length = 1024
-    nperseg = 128
     predictions = []
     all_probs = []
 
-    for i in range(len(signal) // segment_length):
+    for i in range(len(signal) // SEGMENT_LENGTH):
         try:
-            segment = signal[i * segment_length : (i+1) * segment_length]
-            f, t, Zxx = stft(segment.astype(np.complex64), nperseg=nperseg)
+            segment = signal[i * SEGMENT_LENGTH : (i+1) * SEGMENT_LENGTH]
+            _, _, Zxx = stft(segment.astype(np.complex64), nperseg=NPERSEG, noverlap=NOVERLAP)
             spectrogram = np.abs(Zxx).astype(np.float32)
             spectrogram = (spectrogram - np.min(spectrogram)) / (np.max(spectrogram) - np.min(spectrogram) + 1e-8)
             spectrogram = torch.tensor(spectrogram, dtype=torch.float32).unsqueeze(0).unsqueeze(0).to(device)
@@ -60,6 +90,10 @@ if uploaded_file:
         except Exception as e:
             st.warning(f"Skipped a corrupt segment: {str(e)}")
             continue
+
+    if not predictions:
+        st.error("No valid segments could be processed from the uploaded file.")
+        st.stop()
 
     # Results
     counts = Counter(predictions)
@@ -99,12 +133,12 @@ if uploaded_file:
 
     # Spectrogram Viewer
     st.subheader("Spectrogram View of Selected Segment")
-    sample_idx = st.slider("Select a segment index to view", 0, len(signal)//segment_length - 1, 0)
-    segment = signal[sample_idx * segment_length : (sample_idx+1) * segment_length]
-    f, t, Zxx = stft(segment.astype(np.complex64), nperseg=nperseg)
+    sample_idx = st.slider("Select a segment index to view", 0, len(signal)//SEGMENT_LENGTH - 1, 0)
+    segment = signal[sample_idx * SEGMENT_LENGTH : (sample_idx+1) * SEGMENT_LENGTH]
+    f_ax, t_ax, Zxx = stft(segment.astype(np.complex64), nperseg=NPERSEG, noverlap=NOVERLAP)
     spectrogram = np.abs(Zxx)
     fig3, ax3 = plt.subplots()
-    ax3.pcolormesh(t, f, spectrogram, shading='gouraud')
+    ax3.pcolormesh(t_ax, f_ax, spectrogram, shading='gouraud')
     ax3.set_title("Spectrogram of Selected Segment")
     st.pyplot(fig3)
 
